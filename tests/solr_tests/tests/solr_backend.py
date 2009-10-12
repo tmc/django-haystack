@@ -6,7 +6,7 @@ from haystack import backends
 from haystack import indexes
 from haystack.backends.solr_backend import SearchBackend, SearchQuery
 from haystack.exceptions import HaystackError
-from haystack.query import SearchQuerySet, RelatedSearchQuerySet
+from haystack.query import SearchQuerySet, RelatedSearchQuerySet, QF
 from haystack.sites import SearchSite
 from core.models import MockModel, AnotherMockModel
 try:
@@ -186,7 +186,7 @@ class LiveSolrSearchQueryTestCase(TestCase):
         super(LiveSolrSearchQueryTestCase, self).tearDown()
     
     def test_get_spelling(self):
-        self.sq.add_filter('content', 'Indx')
+        self.sq.add_filter(QF(content='Indx'))
         self.assertEqual(self.sq.get_spelling_suggestion(), u'index')
         self.assertEqual(self.sq.get_spelling_suggestion('indexy'), u'index')
     
@@ -206,7 +206,7 @@ class LiveSolrSearchQueryTestCase(TestCase):
         settings.DEBUG = True
         # Redefine it to clear out the cached results.
         self.sq = SearchQuery(backend=SearchBackend())
-        self.sq.add_filter('name', 'bar')
+        self.sq.add_filter(QF(name='bar'))
         len(self.sq.get_results())
         self.assertEqual(len(backends.queries), 1)
         self.assertEqual(backends.queries[0]['query_string'], 'name:bar')
